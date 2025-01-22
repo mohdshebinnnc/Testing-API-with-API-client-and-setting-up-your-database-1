@@ -39,6 +39,31 @@ const app = express();
 const port = 3010;
 
 app.use(express.static('static'));
+app.use(express.json())
+
+const students = require('./data.json')
+
+
+
+app.post('/students/above-threshold', (req, res) => {
+  const { threshold } = req.body;
+
+  if (typeof threshold !== 'number' || threshold <= 0) {
+    return res.status(400).json({ error: 'Invalid threshold. Please provide a positive number.' });
+  }
+
+  const filteredStudents = students.filter(student => student.total > threshold);
+
+
+  const response = {
+    count: filteredStudents.length,
+    students: filteredStudents.map(student => ({ name: student.name, total: student.total }))
+  };
+
+
+  res.json(response);
+});
+
 
 app.get('/', (req, res) => {
   res.sendFile(resolve(__dirname, 'pages/index.html'));
@@ -47,5 +72,4 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
-
 
